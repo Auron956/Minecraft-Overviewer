@@ -1279,32 +1279,22 @@ def sandstone(self, blockid, data):
 # note block
 block(blockid=25, top_image="assets/minecraft/textures/block/note_block.png")
 
-@material(blockid=26, data=list(range(12)), transparent=True, nospawn=True)
+@material(blockid=26, data=list(range(127)), transparent=True, nospawn=True)
 def bed(self, blockid, data):
+    # Bits 1-2   Rotation
+    # Bit 3      Head/Foot of bed (0 = head, 1 = foot)
+    # Bits 4-6   Color
+
     # first get rotation done
-    # Masked to not clobber block head/foot info
-    if self.rotation == 1:
-        if (data & 0b0011) == 0: data = data & 0b1100 | 1
-        elif (data & 0b0011) == 1: data = data & 0b1100 | 2
-        elif (data & 0b0011) == 2: data = data & 0b1100 | 3
-        elif (data & 0b0011) == 3: data = data & 0b1100 | 0
-    elif self.rotation == 2:
-        if (data & 0b0011) == 0: data = data & 0b1100 | 2
-        elif (data & 0b0011) == 1: data = data & 0b1100 | 3
-        elif (data & 0b0011) == 2: data = data & 0b1100 | 0
-        elif (data & 0b0011) == 3: data = data & 0b1100 | 1
-    elif self.rotation == 3:
-        if (data & 0b0011) == 0: data = data & 0b1100 | 3
-        elif (data & 0b0011) == 1: data = data & 0b1100 | 0
-        elif (data & 0b0011) == 2: data = data & 0b1100 | 1
-        elif (data & 0b0011) == 3: data = data & 0b1100 | 2
-    
-    bed_texture = self.load_image("assets/minecraft/textures/entity/bed/red.png") # FIXME: do tile entity colours
+    # Masked to not clobber block head/foot & color info
+    data = data & 0b1111100 | ((self.rotation + (data & 0b11)) % 4)
+
+    bed_texture = self.load_image("assets/minecraft/textures/entity/bed/%s.png" % color_map[data >> 3])
     increment = 8
     left_face = None
     right_face = None
     top_face = None
-    if data & 0x8 == 0x8: # head of the bed
+    if data & 0x04 == 0x00: # head of the bed
         top = bed_texture.copy().crop((6,6,22,22))
 
         # Composing the side
@@ -1321,18 +1311,18 @@ def bed(self, blockid, data):
         alpha_over(end, end_part, (0,7), end_part)
         alpha_over(end, side_part2, (0,13), side_part2)
         alpha_over(end, side_part2_f, (13,13), side_part2_f)
-        if data & 0x00 == 0x00: # South
+        if data & 0x03 == 0x00: # South
             top_face = top.rotate(180)
             left_face = side.transpose(Image.FLIP_LEFT_RIGHT)
             right_face = end
-        if data & 0x01 == 0x01: # West
+        elif data & 0x03 == 0x01: # West
             top_face = top.rotate(90)
             left_face = end
             right_face = side.transpose(Image.FLIP_LEFT_RIGHT)
-        if data & 0x02 == 0x02: # North
+        elif data & 0x03 == 0x02: # North
             top_face = top
             left_face = side
-        if data & 0x03 == 0x03: # East
+        elif data & 0x03 == 0x03: # East
             top_face = top.rotate(270)
             right_face = side
     
@@ -1350,17 +1340,17 @@ def bed(self, blockid, data):
         alpha_over(end, end_part, (0,7), end_part)
         alpha_over(end, side_part2, (0,13), side_part2)
         alpha_over(end, side_part2_f, (13,13), side_part2_f)
-        if data & 0x00 == 0x00: # South
+        if data & 0x03 == 0x00: # South
             top_face = top.rotate(180)
             left_face = side.transpose(Image.FLIP_LEFT_RIGHT)
-        if data & 0x01 == 0x01: # West
+        elif data & 0x03 == 0x01: # West
             top_face = top.rotate(90)
             right_face = side.transpose(Image.FLIP_LEFT_RIGHT)
-        if data & 0x02 == 0x02: # North
+        elif data & 0x03 == 0x02: # North
             top_face = top
             left_face = side
             right_face = end
-        if data & 0x03 == 0x03: # East
+        elif data & 0x03 == 0x03: # East
             top_face = top.rotate(270)
             left_face = end
             right_face = side
