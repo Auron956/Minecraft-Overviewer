@@ -1616,20 +1616,20 @@ def piston_extension(self, blockid, data):
         img2 = self.build_full_block(piston_t ,None ,None ,side_t, side_t)
         alpha_over(img, v_stick, (0,4), v_stick)
         alpha_over(img, img2, (0,0), img2)
-    elif data & 0x07 == 0x2: # east 
+    elif data & 0x07 == 0x2: # north
         img = self.build_full_block(side_t ,None ,None ,side_t.rotate(90), None)
         temp = self.transform_image_side(back_t).transpose(Image.FLIP_LEFT_RIGHT)
         alpha_over(img, temp, (2,2), temp)
         alpha_over(img, h_stick, (6,3), h_stick)
-    elif data & 0x07 == 0x3: # west
+    elif data & 0x07 == 0x3: # south
         img = Image.new("RGBA", (24,24), self.bgcolor)
         img2 = self.build_full_block(side_t.rotate(180) ,None ,None ,side_t.rotate(270), piston_t)
         alpha_over(img, h_stick, (0,0), h_stick)
         alpha_over(img, img2, (0,0), img2)            
-    elif data & 0x07 == 0x4: # north
+    elif data & 0x07 == 0x4: # west
         img = self.build_full_block(side_t.rotate(90) ,None ,None , piston_t, side_t.rotate(270))
         alpha_over(img, h_stick.transpose(Image.FLIP_LEFT_RIGHT), (0,0), h_stick.transpose(Image.FLIP_LEFT_RIGHT))
-    elif data & 0x07 == 0x5: # south
+    elif data & 0x07 == 0x5: # east
         img = Image.new("RGBA", (24,24), self.bgcolor)
         img2 = self.build_full_block(side_t.rotate(270) ,None ,None ,None, side_t.rotate(90))
         temp = self.transform_image_side(back_t)

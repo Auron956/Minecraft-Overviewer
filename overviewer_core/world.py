@@ -1033,6 +1033,13 @@ class RegionSet(object):
         elif key.endswith('shulker_box') or key.endswith('piston') or key in ['minecraft:observer', 'minecraft:dropper', 'minecraft:dispenser']:
             facing = palette_entry['Properties']['facing']
             data = {'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5}[facing]
+            if key.endswith('piston') and palette_entry['Properties'].get('extended', 'false') == 'true':
+                data |= 0x08
+        elif key == 'minecraft:piston_head':
+            facing = palette_entry['Properties']['facing']
+            data = {'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5}[facing]
+            if palette_entry['Properties'].get('type', 'normal') == 'sticky':
+                data |= 0x08
         elif key.endswith('_log') or key.endswith('_wood') or key == 'minecraft:bone_block':
             axis = palette_entry['Properties']['axis']
             if axis == 'x':
