@@ -4240,7 +4240,7 @@ def cauldron(self, blockid, data):
     side = self.load_image_texture("assets/minecraft/textures/block/cauldron_side.png")
     top = self.load_image_texture("assets/minecraft/textures/block/cauldron_top.png")
     bottom = self.load_image_texture("assets/minecraft/textures/block/cauldron_inner.png")
-    water = self.transform_image_top(self.load_water())
+    water = self.transform_image_top(self.load_image("water.png"))
     if data == 0: # empty
         img = self.build_full_block(top, side, side, side, side)
     if data == 1: # 1/3 filled
