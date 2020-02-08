@@ -4283,20 +4283,20 @@ def end_portal(self, blockid, data):
 # end portal frame (data range 8 to get all orientations of filled)
 @material(blockid=120, data=list(range(8)), transparent=True)
 def end_portal_frame(self, blockid, data):
-    # The bottom 2 bits are oritation info but seems there is no
-    # graphical difference between orientations
-    top = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_top.png")
-    eye_t = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_eye.png")
+    # Do rotation, only seems to affect ender eye & top of frame
+    data = data & 0b100 | ((self.rotation + (data & 0b11)) % 4)
+
+    top = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_top.png").rotate((data % 4) * 90)
     side = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_side.png")
     img = self.build_full_block((top, 4), None, None, side, side)
     if data & 0x4 == 0x4: # ender eye on it
         # generate the eye
-        eye_t = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_eye.png").copy()
-        eye_t_s = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_eye.png").copy()
+        eye_t = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_eye.png").rotate((data % 4) * 90)
+        eye_t_s = eye_t.copy()
         # cut out from the texture the side and the top of the eye
         ImageDraw.Draw(eye_t).rectangle((0,0,15,4),outline=(0,0,0,0),fill=(0,0,0,0))
         ImageDraw.Draw(eye_t_s).rectangle((0,4,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-        # trnasform images and paste
+        # transform images and paste
         eye = self.transform_image_top(eye_t)
         eye_s = self.transform_image_side(eye_t_s)
         eye_os = eye_s.transpose(Image.FLIP_LEFT_RIGHT)

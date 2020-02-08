@@ -1153,6 +1153,11 @@ class RegionSet(object):
             # part property should exist, but default to 'head' just in case
             if palette_entry['Properties'].get('part', 'head') == 'foot':
               data |= 4
+        elif key == 'minecraft:end_portal_frame':
+            facing = palette_entry['Properties']['facing']
+            data |= {'south': 0, 'west':1, 'north':2, 'east':3}[facing]
+            if palette_entry['Properties'].get('eye', 'false') == 'true':
+              data |= 4
 
         return (block, data)
 
