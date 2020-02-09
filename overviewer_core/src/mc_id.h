@@ -327,6 +327,7 @@ enum mc_block_id {
     block_scaffolding = 11414,
     block_bamboo = 11416,
     block_composter = 11417,
+    block_sweet_berry_bush = 11419,
     // 1.15 blocks below
     block_beehive = 11501,
     block_bee_nest = 11502,

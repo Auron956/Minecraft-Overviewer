@@ -5200,6 +5200,15 @@ def sandstone(self, blockid, data):
 # scaffolding
 block(blockid=11414, top_image="assets/minecraft/textures/block/scaffolding_top.png", side_image="assets/minecraft/textures/block/scaffolding_side.png", solid=False, transparent=True)
 
+
+# Sweet berry bush
+@material(blockid=11419, data=list(range(4)), solid=False, transparent=True, nospawn=True)
+def sweet_berry_bush(self, blockid, data):
+    img = self.load_image_texture("assets/minecraft/textures/block/sweet_berry_bush_stage%s.png" %
+                                  data)
+    return self.build_sprite(img)
+
+
 # beehive and bee_nest
 @material(blockid=[11501, 11502], data=list(range(8)), solid=True)
 def beehivenest(self, blockid, data):    
