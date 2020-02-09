@@ -1644,17 +1644,17 @@ def wool(self, blockid, data):
     
     return self.build_block(texture, texture)
 
-# dandelion
-sprite(blockid=37, imagename="assets/minecraft/textures/block/dandelion.png")
 
 # flowers
-@material(blockid=38, data=list(range(10)), transparent=True)
+@material(blockid=38, data=list(range(13)), transparent=True, solid=False, nospawn=True)
 def flower(self, blockid, data):
     flower_map = ["poppy", "blue_orchid", "allium", "azure_bluet", "red_tulip", "orange_tulip",
-                  "white_tulip", "pink_tulip", "oxeye_daisy", "dandelion"]
+                  "white_tulip", "pink_tulip", "oxeye_daisy", "dandelion", "cornflower",
+                  "wither_rose", "lily_of_the_valley"]
     texture = self.load_image_texture("assets/minecraft/textures/block/%s.png" % flower_map[data])
 
     return self.build_billboard(texture)
+
 
 # brown mushroom
 sprite(blockid=39, imagename="assets/minecraft/textures/block/brown_mushroom.png")
