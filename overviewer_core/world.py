@@ -821,6 +821,7 @@ class RegionSet(object):
             'minecraft:bamboo': (11416, 0),
             "minecraft:composter": (11417, 0),
             "minecraft:barrel": (11418, 0),
+            'minecraft:sweet_berry_bush': (11419, 0),
             # 1.15 blocks below
             'minecraft:beehive': (11501, 0),
             'minecraft:bee_nest': (11502, 0),
@@ -1133,7 +1134,8 @@ class RegionSet(object):
             if p['open'] == 'true': data |= 0x04
             if p['half'] == 'top': data |= 0x08
         elif key in ['minecraft:beetroots', 'minecraft:melon_stem', 'minecraft:wheat',
-                     'minecraft:pumpkin_stem', 'minecraft:potatoes', 'minecraft:carrots']:
+                     'minecraft:pumpkin_stem', 'minecraft:potatoes', 'minecraft:carrots',
+                     'minecraft:sweet_berry_bush']:
             data = palette_entry['Properties']['age']
         elif key == 'minecraft:lantern':
             if palette_entry['Properties']['hanging'] == 'true':
