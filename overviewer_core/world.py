@@ -685,6 +685,7 @@ class RegionSet(object):
             'minecraft:black_glazed_terracotta': (250, 0),
 
             'minecraft:structure_block': (255, 0),
+            'minecraft:jigsaw': (256, 0),
 
             'minecraft:armor_stand': (416, 0),  # not rendering
 
@@ -1030,7 +1031,7 @@ class RegionSet(object):
                 data = {'east': 6, 'west': 6, 'south': 5, 'north': 5}[facing]
         elif key == 'minecraft:nether_wart':
             data = int(palette_entry['Properties']['age'])
-        elif key.endswith('shulker_box') or key.endswith('piston') or key in ['minecraft:observer', 'minecraft:dropper', 'minecraft:dispenser']:
+        elif key.endswith('shulker_box') or key.endswith('piston') or key in ['minecraft:observer', 'minecraft:dropper', 'minecraft:dispenser', 'minecraft:jigsaw']:
             facing = palette_entry['Properties']['facing']
             data = {'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5}[facing]
             if key.endswith('piston') and palette_entry['Properties'].get('extended', 'false') == 'true':
