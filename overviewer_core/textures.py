@@ -1279,7 +1279,7 @@ def sandstone(self, blockid, data):
 # note block
 block(blockid=25, top_image="assets/minecraft/textures/block/note_block.png")
 
-@material(blockid=26, data=list(range(127)), transparent=True, nospawn=True)
+@material(blockid=26, data=list(range(128)), transparent=True, nospawn=True)
 def bed(self, blockid, data):
     # Bits 1-2   Rotation
     # Bit 3      Head/Foot of bed (0 = head, 1 = foot)
