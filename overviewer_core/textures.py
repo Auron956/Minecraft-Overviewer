@@ -2580,13 +2580,14 @@ def crops8(self, blockid, data):
     return img
 
 # farmland and grass path (15/16 blocks)
-@material(blockid=[60,208], data=list(range(9)), solid=True)
+@material(blockid=[60,208], data=list(range(2)), solid=True)
 def farmland(self, blockid, data):
     if blockid == 60:
         side = self.load_image_texture("assets/minecraft/textures/block/dirt.png")
-        top = self.load_image_texture("assets/minecraft/textures/block/farmland_moist.png")
         if data == 0:
             top = self.load_image_texture("assets/minecraft/textures/block/farmland.png")
+        else:
+            top = self.load_image_texture("assets/minecraft/textures/block/farmland_moist.png")
         # dirt.png is 16 pixels tall, so we need to crop it before building full block
         side = side.crop((0, 1, 16, 16))
         return self.build_full_block((top, 1), side, side, side, side)
