@@ -324,31 +324,6 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
         /* portal and nether brick fences */
         return check_adjacent_blocks(state, x, y, z, state->block);
 
-    } else if (block_class_is_subset(state->block, block_class_door, block_class_door_len)) {
-        /* use bottom block data format plus one bit for top/down
-         * block (0x8) and one bit for hinge position (0x10)
-         */
-        uint8_t data = 0;
-        if ((ancilData & 0x8) == 0x8) {
-            /* top door block */
-            uint8_t b_data = get_data(state, DATA, x, y - 1, z);
-            if ((ancilData & 0x1) == 0x1) {
-                /* hinge on the left */
-                data = b_data | 0x8 | 0x10;
-            } else {
-                data = b_data | 0x8;
-            }
-        } else {
-            /* bottom door block */
-            uint8_t t_data = get_data(state, DATA, x, y + 1, z);
-            if ((t_data & 0x1) == 0x1) {
-                /* hinge on the left */
-                data = ancilData | 0x10;
-            } else {
-                data = ancilData;
-            }
-        }
-        return data;
     } else if (block_class_is_subset(state->block, block_class_wall, block_class_wall_len)) {
         /* check for walls and add one bit with the type of wall (mossy or cobblestone)*/
         if (ancilData == 0x1) {
