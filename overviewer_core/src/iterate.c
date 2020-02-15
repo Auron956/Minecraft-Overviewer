@@ -253,12 +253,7 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
     int32_t x = state->x, y = state->y, z = state->z;
     uint16_t data = 0;
 
-    if (state->block == block_grass) { /* grass */
-        /* return 0x10 if grass is covered in snow */
-        if (get_data(state, BLOCKS, x, y + 1, z) == 78)
-            return 0x10;
-        return ancilData;
-    } else if (block_class_is_subset(state->block, (mc_block_t[]){block_flowing_water, block_water}, 2)) { /* water */
+    if (block_class_is_subset(state->block, (mc_block_t[]){block_flowing_water, block_water}, 2)) { /* water */
         data = check_adjacent_blocks(state, x, y, z, state->block) ^ 0x0f;
         /* an aditional bit for top is added to the 4 bits of check_adjacent_blocks */
         if (get_data(state, BLOCKS, x, y + 1, z) != state->block)

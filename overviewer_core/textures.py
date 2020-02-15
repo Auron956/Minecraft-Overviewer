@@ -933,18 +933,21 @@ def grass(self, blockid, data):
         alpha_over(img, self.biome_grass_texture, (0, 0), self.biome_grass_texture)
     return img
 
+
 # dirt
-@material(blockid=3, data=list(range(3)), solid=True)
+@material(blockid=3, data=[0, 1, 2, 18], solid=True)
 def dirt_blocks(self, blockid, data):
-    side_img = self.load_image_texture("assets/minecraft/textures/block/dirt.png")
-    if data == 0: # normal
-        img =  self.build_block(self.load_image_texture("assets/minecraft/textures/block/dirt.png"), side_img)
-    if data == 1: # grassless
-        img = self.build_block(self.load_image_texture("assets/minecraft/textures/block/dirt.png"), side_img)
-    if data == 2: # podzol
-        side_img = self.load_image_texture("assets/minecraft/textures/block/podzol_side.png")
-        img = self.build_block(self.load_image_texture("assets/minecraft/textures/block/podzol_top.png"), side_img)
-    return img
+    texture_map = {0:  {"top": "dirt",            "side": "dirt"},              # Normal
+                   1:  {"top": "coarse_dirt",     "side": "coarse_dirt"},       # Coarse
+                   2:  {"top": "podzol_top",      "side": "podzol_side"},       # Podzol
+                   18: {"top": "grass_block_top", "side": "grass_block_snow"}}  # Snowy podzol
+    top_img = self.load_image_texture("assets/minecraft/textures/block/%s.png"
+                                      % texture_map[data]["top"])
+    side_img = self.load_image_texture("assets/minecraft/textures/block/%s.png"
+                                       % texture_map[data]["side"])
+
+    return self.build_block(top_img, side_img)
+
 
 # cobblestone
 block(blockid=4, top_image="assets/minecraft/textures/block/cobblestone.png")
@@ -4344,8 +4347,19 @@ def fence_gate(self, blockid, data):
     
     return img
 
+
 # mycelium
-block(blockid=110, top_image="assets/minecraft/textures/block/mycelium_top.png", side_image="assets/minecraft/textures/block/mycelium_side.png")
+@material(blockid=110, data=[0, 16], solid=True)
+def mycelium(self, blockid, data):
+    texture_map = {0:  {"top": "mycelium_top",    "side": "mycelium_side"},     # Mycelium
+                   16: {"top": "grass_block_top", "side": "grass_block_snow"}}  # Snowy mycelium
+    top_img = self.load_image_texture("assets/minecraft/textures/block/%s.png"
+                                      % texture_map[data]["top"])
+    side_img = self.load_image_texture("assets/minecraft/textures/block/%s.png"
+                                       % texture_map[data]["side"])
+
+    return self.build_block(top_img, side_img)
+
 
 # lilypad
 # At the moment of writing this lilypads has no ancil data and their

@@ -160,7 +160,6 @@ const mc_block_t block_class_ancil[] = {
     block_end_stone_brick_stairs,
     block_red_nether_brick_stairs,
     block_smooth_sandstone_stairs,
-    block_grass,
     block_flowing_water,
     block_water,
     block_glass,

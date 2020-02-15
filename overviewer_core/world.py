@@ -1181,6 +1181,9 @@ class RegionSet(object):
             elif key == 'minecraft:bell':
                 data |= {'floor': 0, 'ceiling': 4, 'single_wall': 8,
                          'double_wall': 12}[p['attachment']]
+        elif key in ['minecraft:grass_block', 'minecraft:podzol', 'minecraft:mycelium']:
+            if palette_entry['Properties'].get('snowy', 'false') == 'true':
+                data |= 16
 
         return (block, data)
 
