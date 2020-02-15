@@ -1167,11 +1167,11 @@ class RegionSet(object):
         elif key == 'minecraft:farmland':
             # A moisture level of 7 has a different texture from other farmland
             data = 1 if palette_entry['Properties'].get('moisture', 0) == '7' else 0
-        elif key == 'minecraft:podzol':
+        elif key in ['minecraft:grass_block', 'minecraft:podzol']:
             if palette_entry['Properties'].get('snowy', 'false') == 'true':
-                # Snowy podzol has the same appearance as a snowy grass block
-                block = 2
                 data = 16
+                # Snowy podzol has the same appearance as a snowy grass block
+                if key == 'minecraft:podzol': block = 2
 
         return (block, data)
 
