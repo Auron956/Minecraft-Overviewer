@@ -315,13 +315,6 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
         /* portal and nether brick fences */
         return check_adjacent_blocks(state, x, y, z, state->block);
 
-    } else if (block_class_is_subset(state->block, block_class_wall, block_class_wall_len)) {
-        /* check for walls and add one bit with the type of wall (mossy or cobblestone)*/
-        if (ancilData == 0x1) {
-            return check_adjacent_blocks(state, x, y, z, state->block) | 0x10;
-        } else {
-            return check_adjacent_blocks(state, x, y, z, state->block);
-        }
     } else if (state->block == block_waterlily) {
         int32_t wx, wz, wy, rotation;
         int64_t pr;
