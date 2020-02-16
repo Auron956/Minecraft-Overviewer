@@ -311,15 +311,6 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
         }
         return final_data;
 
-    } else if (block_class_is_subset(state->block, (mc_block_t[]){block_iron_bars, block_glass_pane, block_stained_glass_pane}, 3)) {
-        /* iron bars and glass panes:
-         * they seem to stick to almost everything but air,
-         * not sure yet! Still a TODO! */
-        /* return check adjacent blocks with air, bit inverted */
-        // shift up 4 bits because the lower 4 bits encode color
-        data = (check_adjacent_blocks(state, x, y, z, 0) ^ 0x0f);
-        return (data << 4) | (ancilData & 0xf);
-
     } else if (block_class_is_subset(state->block, (mc_block_t[]){block_portal, block_nether_brick_fence}, 2)) {
         /* portal and nether brick fences */
         return check_adjacent_blocks(state, x, y, z, state->block);

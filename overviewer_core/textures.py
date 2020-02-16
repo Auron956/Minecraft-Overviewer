@@ -3875,53 +3875,104 @@ def huge_mushroom(self, blockid, data):
 
     return self.build_full_block(side_up, None, None, side_west, side_south)
 
+def draw_pane(self, img, data):
+    # Takes a 16x16 pane image & a 4 bit data value, returns a 24x24 texture
+    # data: 0b4321: 4 = East, 3 = South, 2 = West, 1 = North
+    
+    # Cut img into two halves & generate a middle section
+    img_left = img.copy()
+    img_right = img.copy()
+    img_middle = img.copy()
+    ImageDraw.Draw(img_right).rectangle((0, 0, 7, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(img_left).rectangle((8, 0, 15, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(img_middle).rectangle((0, 0, 7, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(img_middle).rectangle((9, 0, 15, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    
+    # Compose final image
+    img_result = Image.new("RGBA", (24, 24), self.bgcolor)
+
+    if data & 0b1111:
+        if data & 0b0001: # North
+            img_north = self.transform_image_side(img_left)
+            alpha_over(img_result, img_north, (6, 3), img_north)
+        if data & 0b1000: # East
+            img_east = self.transform_image_side(img_right).transpose(Image.FLIP_TOP_BOTTOM)
+            alpha_over(img_result, img_east, (6, 3), img_east)
+        if data & 0b0010: # West
+            img_west = self.transform_image_side(img_left).transpose(Image.FLIP_TOP_BOTTOM)
+            alpha_over(img_result, img_west, (6, 3), img_west)
+        if data & 0b0100: # South
+            img_south = self.transform_image_side(img_right)
+            alpha_over(img_result, img_south, (6, 3), img_south)
+    else: # Render a single, thin pillar when data is zero 
+        img_middle = self.transform_image_side(img_middle)
+        alpha_over(img_result, img_middle, (6, 3), img_middle)
+        img_middle = img_middle.transpose(Image.FLIP_LEFT_RIGHT)
+        alpha_over(img_result, img_middle, (6, 3), img_middle)
+
+    return img_result
+
 # iron bars and glass pane
 # TODO glass pane is not a sprite, it has a texture for the side,
 # at the moment is not used
-@material(blockid=[101,102, 160], data=list(range(256)), transparent=True, nospawn=True)
+@material(blockid=[101, 102], data=list(range(16)), transparent=True, nospawn=True)
 def panes(self, blockid, data):
-    # no rotation, uses pseudo data
+    # Re-arrange the bits in data based on self.rotation
+    # rotation  bit: 4321
+    #        0       ESWN
+    #        1       NESW
+    #        2       WNES
+    #        3       SWNE
+    if self.rotation in [1, 2, 3]:
+        bit_map = {1: [1, 4, 3, 2],
+                   2: [2, 1, 4, 3],
+                   3: [3, 2, 1, 4]}
+        new_data = 0
+
+        # Add the ith bit to new_data then shift left one at a time,
+        # re-ordering data's bits in the order specified in bit_map
+        for i in bit_map[self.rotation]:
+            new_data = new_data << 1
+            new_data |= (data >> (i - 1)) & 1
+        data = new_data 
+
     if blockid == 101:
         # iron bars
         t = self.load_image_texture("assets/minecraft/textures/block/iron_bars.png")
-    elif blockid == 160:
-        t = self.load_image_texture("assets/minecraft/textures/block/%s_stained_glass.png" % color_map[data & 0xf])
     else:
         # glass panes
         t = self.load_image_texture("assets/minecraft/textures/block/glass.png")
-    left = t.copy()
-    right = t.copy()
 
-    # generate the four small pieces of the glass pane
-    ImageDraw.Draw(right).rectangle((0,0,7,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(left).rectangle((8,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
+    return draw_pane(self, t, data)
+
+# Stained glass panes
+@material(blockid=160, data=list(range(256)), transparent=True, nospawn=True)
+def stained_panes(self, blockid, data):
+    t = self.load_image_texture("assets/minecraft/textures/block/%s_stained_glass.png" % color_map[data & 0xf])
     
-    up_left = self.transform_image_side(left)
-    up_right = self.transform_image_side(right).transpose(Image.FLIP_TOP_BOTTOM)
-    dw_right = self.transform_image_side(right)
-    dw_left = self.transform_image_side(left).transpose(Image.FLIP_TOP_BOTTOM)
-
-    # Create img to compose the texture
-    img = Image.new("RGBA", (24,24), self.bgcolor)
-
-    # +x axis points top right direction
-    # +y axis points bottom right direction
-    # First compose things in the back of the image, 
-    # then things in the front.
-
-    # the lower 4 bits encode color, the upper 4 encode adjencies
+    # Colour data no longer required
     data = data >> 4
 
-    if (data & 0b0001) == 1 or data == 0:
-        alpha_over(img,up_left, (6,3),up_left)    # top left
-    if (data & 0b1000) == 8 or data == 0:
-        alpha_over(img,up_right, (6,3),up_right)  # top right
-    if (data & 0b0010) == 2 or data == 0:
-        alpha_over(img,dw_left, (6,3),dw_left)    # bottom left    
-    if (data & 0b0100) == 4 or data == 0:
-        alpha_over(img,dw_right, (6,3),dw_right)  # bottom right
+    # Re-arrange the bits in data based on self.rotation
+    # rotation  bit: 4321
+    #        0       ESWN
+    #        1       NESW
+    #        2       WNES
+    #        3       SWNE
+    if self.rotation in [1, 2, 3]:
+        bit_map = {1: [1, 4, 3, 2],
+                   2: [2, 1, 4, 3],
+                   3: [3, 2, 1, 4]}
+        new_data = 0
 
-    return img
+        # Add the ith bit to new_data then shift left one at a time,
+        # re-ordering data's bits in the order specified in bit_map
+        for i in bit_map[self.rotation]:
+            new_data = new_data << 1
+            new_data |= (data >> (i - 1)) & 1
+        data = new_data
+
+    return draw_pane(self, t, data)
 
 # melon
 block(blockid=103, top_image="assets/minecraft/textures/block/melon_top.png", side_image="assets/minecraft/textures/block/melon_side.png", solid=True)
