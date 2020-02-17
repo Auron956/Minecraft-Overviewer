@@ -1098,12 +1098,6 @@ class RegionSet(object):
             else:
                 p = palette_entry['Properties']
                 data = p['rotation']
-        elif key.endswith('_fence'):
-            p = palette_entry['Properties']
-            if p['north'] == 'true': data |= 1
-            if p['west']  == 'true': data |= 2
-            if p['south'] == 'true': data |= 4
-            if p['east']  == 'true': data |= 8
         elif key.endswith('_stairs'):
             facing = palette_entry['Properties']['facing']
             if   facing == 'south': data = 2
@@ -1174,14 +1168,15 @@ class RegionSet(object):
                 if key in ['minecraft:podzol', 'minecraft:mycelium']: block = 2
         elif (key in ['minecraft:iron_bars', 'minecraft:glass_pane'] or
               key.endswith('_glass_pane') or
-              key.endswith('_wall')):
+              key.endswith('_wall') or
+              key.endswith('_fence')):
             p = palette_entry['Properties']
             # Shift up 4 bits for stained glass panes as the lower 4 bits encode colour
             shift_bits = 4 if key.endswith('_glass_pane') else 0
 
-            if p['east'] == 'true': data |= 8 << shift_bits
+            if p['east']   == 'true': data |= 8 << shift_bits
             if p['south']  == 'true': data |= 4 << shift_bits
-            if p['west'] == 'true': data |= 2 << shift_bits
+            if p['west']   == 'true': data |= 2 << shift_bits
             if p['north']  == 'true': data |= 1 << shift_bits
 
         return (block, data)
