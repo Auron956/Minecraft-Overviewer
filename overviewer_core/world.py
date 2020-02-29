@@ -653,23 +653,7 @@ class RegionSet(object):
             'minecraft:red_nether_bricks': (215, 0),
             'minecraft:bone_block': (216, 0),
             'minecraft:observer': (218, 0),
-            'minecraft:white_shulker_box': (219, 0),
-            'minecraft:orange_shulker_box': (220, 0),
-            'minecraft:magenta_shulker_box': (221, 0),
-            'minecraft:light_blue_shulker_box': (222, 0),
-            'minecraft:yellow_shulker_box': (223, 0),
-            'minecraft:lime_shulker_box': (224, 0),
-            'minecraft:pink_shulker_box': (225, 0),
-            'minecraft:gray_shulker_box': (226, 0),
-            'minecraft:light_gray_shulker_box': (227, 0),
-            'minecraft:cyan_shulker_box': (228, 0),
-            'minecraft:shulker_box': (229, 0),  # wrong color
-            'minecraft:purple_shulker_box': (229, 0),
-            'minecraft:blue_shulker_box': (230, 0),
-            'minecraft:brown_shulker_box': (231, 0),
-            'minecraft:green_shulker_box': (232, 0),
-            'minecraft:red_shulker_box': (233, 0),
-            'minecraft:black_shulker_box': (234, 0),
+            'minecraft:shulker_box': (219, 16 << 3), # 0 to 15 used by colored variants
             'minecraft:white_glazed_terracotta': (235, 0),
             'minecraft:orange_glazed_terracotta': (236, 0),
             'minecraft:magenta_glazed_terracotta': (237, 0),
@@ -858,6 +842,7 @@ class RegionSet(object):
             self._blockmap['minecraft:%s_stained_glass_pane' % colors[i]] = (160, i)
             self._blockmap['minecraft:%s_banner'             % colors[i]] = (176, i) #not rendering
             self._blockmap['minecraft:%s_wall_banner'        % colors[i]] = (177, i) #not rendering
+            self._blockmap['minecraft:%s_shulker_box'        % colors[i]] = (219, i << 3) # Bits 1-3 indicate facing
             self._blockmap['minecraft:%s_concrete'           % colors[i]] = (251, i)
             self._blockmap['minecraft:%s_concrete_powder'    % colors[i]] = (252, i)
 
@@ -1042,7 +1027,7 @@ class RegionSet(object):
             data = int(palette_entry['Properties']['age'])
         elif key.endswith('shulker_box') or key.endswith('piston') or key in ['minecraft:observer', 'minecraft:dropper', 'minecraft:dispenser', 'minecraft:jigsaw']:
             facing = palette_entry['Properties']['facing']
-            data = {'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5}[facing]
+            data |= {'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5}[facing]
             if key.endswith('piston') and palette_entry['Properties'].get('extended', 'false') == 'true':
                 data |= 0x08
         elif key == 'minecraft:piston_head':
