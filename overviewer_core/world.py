@@ -1060,7 +1060,8 @@ class RegionSet(object):
                 data = {'east': 1, 'west': 2, 'south': 3, 'north': 4}[facing]
             else:
                 data = 5
-        elif key in ['minecraft:carved_pumpkin', 'minecraft:jack_o_lantern'] or key.endswith('glazed_terracotta'):
+        elif (key in ['minecraft:carved_pumpkin', 'minecraft:jack_o_lantern'] or
+              key.endswith('glazed_terracotta')):
             facing = palette_entry['Properties']['facing']
             data = {'south': 0, 'west': 1, 'north': 2, 'east': 3}[facing]
         elif key in ['minecraft:vine', 'minecraft:brown_mushroom_block',
