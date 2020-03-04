@@ -906,7 +906,17 @@ class RegionSet(object):
             if palette_entry['Properties']['inverted'] == 'true':
                 block = 178
         elif key == 'minecraft:redstone_wire':
-            data = palette_entry['Properties']['power']
+            p = palette_entry['Properties']
+            data = 0 if p['power'] == '0' else 1
+            # Each direction for redstone wire has three states:
+            #  none  0 Wire doesn't point in this direction
+            #  side  1 Wire points to the adjacent block in this direction
+            #  up    2 Wire points to the adjacent block that is up one y co-ordinate
+            state_map = {'none': 0, 'side': 1, 'up': 2}
+            data |= (state_map[p['south']] * 3**0 +
+                     state_map[p['west']]  * 3**1 +
+                     state_map[p['north']] * 3**2 +
+                     state_map[p['east']]  * 3**3) << 1
         elif key == 'minecraft:grass_block':
             if palette_entry['Properties']['snowy'] == 'true':
                 data |= 0x10

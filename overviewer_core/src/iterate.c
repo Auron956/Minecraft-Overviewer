@@ -272,40 +272,6 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
         data = (check_adjacent_blocks(state, x, y, z, state->block) ^ 0x0f) | data;
         return (data << 4) | (ancilData & 0x0f);
 
-    } else if (state->block == block_redstone_wire) { /* redstone */
-        /* three addiotional bit are added, one for on/off state, and
-         * another two for going-up redstone wire in the same block
-         * (connection with the level y+1) */
-        uint8_t above_level_data = 0, same_level_data = 0, below_level_data = 0, possibly_connected = 0, final_data = 0;
-
-        /* check for air in y+1, no air = no connection with upper level */
-        if (get_data(state, BLOCKS, x, y + 1, z) == 0) {
-            above_level_data = check_adjacent_blocks(state, x, y + 1, z, state->block);
-        } /* else above_level_data = 0 */
-
-        /* check connection with same level (other redstone and trapped chests */
-        same_level_data = check_adjacent_blocks(state, x, y, z, 55) | check_adjacent_blocks(state, x, y, z, 146);
-
-        /* check the posibility of connection with y-1 level, check for air */
-        possibly_connected = check_adjacent_blocks(state, x, y, z, 0);
-
-        /* check connection with y-1 level */
-        below_level_data = check_adjacent_blocks(state, x, y - 1, z, state->block);
-
-        final_data = above_level_data | same_level_data | (below_level_data & possibly_connected);
-
-        /* add the three bits */
-        if (ancilData > 0) { /* powered redstone wire */
-            final_data = final_data | 0x40;
-        }
-        if ((above_level_data & 0x01)) { /* draw top left going up redstonewire */
-            final_data = final_data | 0x20;
-        }
-        if ((above_level_data & 0x08)) { /* draw top right going up redstonewire */
-            final_data = final_data | 0x10;
-        }
-        return final_data;
-
     } else if (state->block == block_portal) {
         /* portal  */
         return check_adjacent_blocks(state, x, y, z, state->block);
