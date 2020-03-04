@@ -126,7 +126,6 @@ const mc_block_t block_class_ancil[] = {
     block_water,
     block_glass,
     block_ice,
-    block_portal,
     block_waterlily,
     block_double_plant,
     block_stained_glass};

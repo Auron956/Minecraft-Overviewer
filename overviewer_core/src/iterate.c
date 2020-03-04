@@ -271,11 +271,6 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
         }
         data = (check_adjacent_blocks(state, x, y, z, state->block) ^ 0x0f) | data;
         return (data << 4) | (ancilData & 0x0f);
-
-    } else if (state->block == block_portal) {
-        /* portal  */
-        return check_adjacent_blocks(state, x, y, z, state->block);
-
     } else if (state->block == block_waterlily) {
         int32_t wx, wz, wy, rotation;
         int64_t pr;
