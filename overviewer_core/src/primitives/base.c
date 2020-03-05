@@ -75,10 +75,6 @@ static void
 base_draw(void* data, RenderState* state, PyObject* src, PyObject* mask, PyObject* mask_light) {
     PrimitiveBase* self = (PrimitiveBase*)data;
 
-    /* in order to detect top parts of doublePlant grass & ferns */
-    mc_block_t below_block = get_data(state, BLOCKS, state->x, state->y - 1, state->z);
-    uint8_t below_data = get_data(state, DATA, state->x, state->y - 1, state->z);
-
     /* draw the block! */
     alpha_over(state->img, src, mask, state->imgx, state->imgy, 0, 0);
 
@@ -102,10 +98,8 @@ base_draw(void* data, RenderState* state, PyObject* src, PyObject* mask, PyObjec
         /* pumpkin/melon stem, not fully grown. Fully grown stems
          * get constant brown color (see textures.py) */
         (((state->block == block_pumpkin_stem) || (state->block == block_melon_stem)) && (state->block_data != 7)) ||
-        /* doublePlant grass & ferns */
-        (state->block == block_double_plant && (state->block_data == 2 || state->block_data == 3)) ||
-        /* doublePlant grass & ferns tops */
-        (state->block == block_double_plant && below_block == block_double_plant && (below_data == 2 || below_data == 3))) {
+        /* doublePlant grass & ferns tops & bottoms */
+        (state->block == block_double_plant && ((state->block_data & 7) == 2 || (state->block_data & 7) == 3))) {
         /* do the biome stuff! */
         PyObject* facemask = mask;
         uint8_t r = 255, g = 255, b = 255;

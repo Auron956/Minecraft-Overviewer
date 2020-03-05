@@ -285,17 +285,6 @@ generate_pseudo_data(RenderState* state, uint16_t ancilData) {
         pr = pr * pr * 42317861 + pr * 11;
         rotation = 3 & (pr >> 16);
         return rotation;
-    } else if (state->block == block_double_plant) { /* doublePlants */
-        /* use bottom block data format plus one bit for top
-         * block (0x8)
-         */
-        if (get_data(state, BLOCKS, x, y - 1, z) == block_double_plant) {
-            data = get_data(state, DATA, x, y - 1, z) | 0x8;
-        } else {
-            data = ancilData;
-        }
-
-        return data;
     }
 
     return 0;
