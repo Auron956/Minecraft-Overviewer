@@ -4254,18 +4254,18 @@ def end_portal_frame(self, blockid, data):
     img = self.build_full_block((top, 4), None, None, side, side)
     if data & 0x4 == 0x4: # ender eye on it
         # generate the eye
-        eye_t = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_eye.png").rotate((data % 4) * 90)
+        eye_t = self.load_image_texture("assets/minecraft/textures/block/end_portal_frame_eye.png").copy()
         eye_t_s = eye_t.copy()
         # cut out from the texture the side and the top of the eye
-        ImageDraw.Draw(eye_t).rectangle((0,0,15,4),outline=(0,0,0,0),fill=(0,0,0,0))
-        ImageDraw.Draw(eye_t_s).rectangle((0,4,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
+        ImageDraw.Draw(eye_t).rectangle((0, 0, 15, 4), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+        ImageDraw.Draw(eye_t_s).rectangle((0, 4, 15, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
         # transform images and paste
-        eye = self.transform_image_top(eye_t)
+        eye = self.transform_image_top(eye_t.rotate((data % 4) * 90))
         eye_s = self.transform_image_side(eye_t_s)
         eye_os = eye_s.transpose(Image.FLIP_LEFT_RIGHT)
-        alpha_over(img, eye_s, (5,5), eye_s)
-        alpha_over(img, eye_os, (9,5), eye_os)
-        alpha_over(img, eye, (0,0), eye)
+        alpha_over(img, eye_s, (5, 5), eye_s)
+        alpha_over(img, eye_os, (9, 5), eye_os)
+        alpha_over(img, eye, (0, 0), eye)
 
     return img
 
