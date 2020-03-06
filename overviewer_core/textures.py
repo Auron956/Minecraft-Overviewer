@@ -4659,7 +4659,7 @@ def anvil(self, blockid, data):
     
     # anvils only have two orientations, invert it for rotations 1 and 3
     orientation = data & 0x1
-    if self.rotation in (1,3):
+    if self.rotation in (1, 3):
         if orientation == 1:
             orientation = 0
         else:
@@ -4680,31 +4680,31 @@ def anvil(self, blockid, data):
     small_base = self.load_image_texture("assets/minecraft/textures/block/anvil.png").copy()
     
     # cut needed patterns
-    ImageDraw.Draw(big_side).rectangle((0,8,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(small_side).rectangle((0,0,2,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(small_side).rectangle((13,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(small_side).rectangle((0,8,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(base).rectangle((0,0,15,15),outline=(0,0,0,0))
-    ImageDraw.Draw(base).rectangle((1,1,14,14),outline=(0,0,0,0))
-    ImageDraw.Draw(small_base).rectangle((0,0,15,15),outline=(0,0,0,0))
-    ImageDraw.Draw(small_base).rectangle((1,1,14,14),outline=(0,0,0,0))
-    ImageDraw.Draw(small_base).rectangle((2,2,13,13),outline=(0,0,0,0))
-    ImageDraw.Draw(small_base).rectangle((3,3,12,12),outline=(0,0,0,0))
+    ImageDraw.Draw(big_side).rectangle((0, 8, 15, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(small_side).rectangle((0, 0, 2, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(small_side).rectangle((13, 0, 15, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(small_side).rectangle((0, 8, 15, 15), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+    ImageDraw.Draw(base).rectangle((0, 0, 15, 15), outline=(0, 0, 0, 0))
+    ImageDraw.Draw(base).rectangle((1, 1, 14, 14), outline=(0, 0, 0, 0))
+    ImageDraw.Draw(small_base).rectangle((0, 0, 15, 15), outline=(0, 0, 0, 0))
+    ImageDraw.Draw(small_base).rectangle((1, 1, 14, 14), outline=(0, 0, 0, 0))
+    ImageDraw.Draw(small_base).rectangle((2, 2, 13, 13), outline=(0, 0, 0, 0))
+    ImageDraw.Draw(small_base).rectangle((3, 3, 12, 12), outline=(0, 0, 0, 0))
     
     # check orientation and compose the anvil
     if orientation == 1: # bottom-left top-right
         top = top.rotate(90)
         left_side = small_side
-        left_pos = (1,7)
+        left_pos = (1, 6)
         right_side = big_side
-        right_pos = (10,5)
+        right_pos = (10, 5)
     else: # top-left bottom-right
         right_side = small_side
-        right_pos = (12,7)
+        right_pos = (12, 6)
         left_side = big_side
-        left_pos = (3,5)
+        left_pos = (3, 5)
     
-    img = Image.new("RGBA", (24,24), self.bgcolor)
+    img = Image.new("RGBA", (24, 24), self.bgcolor)
     
     # darken sides
     alpha = big_side.split()[3]
@@ -4723,12 +4723,12 @@ def anvil(self, blockid, data):
     small_base = self.transform_image_top(small_base)
     top = self.transform_image_top(top)
     
-    alpha_over(img, base_d, (0,12), base_d)
-    alpha_over(img, base_d, (0,11), base_d)
-    alpha_over(img, base_d, (0,10), base_d)
-    alpha_over(img, small_base, (0,10), small_base)
+    alpha_over(img, base_d, (0, 12), base_d)
+    alpha_over(img, base_d, (0, 11), base_d)
+    alpha_over(img, base_d, (0, 10), base_d)
+    alpha_over(img, small_base, (0, 10), small_base)
     
-    alpha_over(img, top, (0,0), top)
+    alpha_over(img, top, (0, 0), top)
     
     left_side = self.transform_image_side(left_side)
     right_side = self.transform_image_side(right_side).transpose(Image.FLIP_LEFT_RIGHT)
