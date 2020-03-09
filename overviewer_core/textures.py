@@ -1202,8 +1202,8 @@ block(blockid=21, top_image="assets/minecraft/textures/block/lapis_ore.png")
 # lapis lazuli block
 block(blockid=22, top_image="assets/minecraft/textures/block/lapis_block.png")
 
-# dispensers, dropper, furnaces, and blast furnaces
-@material(blockid=[23, 61, 158, 11362], data=list(range(14)), solid=True)
+# dispenser, dropper, furnace, blast furnace, and smoker
+@material(blockid=[23, 61, 158, 11362, 11364], data=list(range(14)), solid=True)
 def furnaces(self, blockid, data):
     # first, do the rotation if needed
     # Masked as bit 4 indicates whether the block is lit/triggered or not
@@ -1216,40 +1216,42 @@ def furnaces(self, blockid, data):
     # Rotation angles for top texture using data & 0b111 as an index
     top_rotation_map = [0, 0, 180, 0, 270, 90, 0, 0]
 
-    if blockid == 11362: # Blast furnace has its own top/side textures
-        top = self.load_image_texture("assets/minecraft/textures/block/blast_furnace_top.png")
-        side = self.load_image_texture("assets/minecraft/textures/block/blast_furnace_side.png")
+    #              Dispenser
+    texture_map = {23:    {'top': 'furnace_top', 'side': 'furnace_side',
+                           'front': 'dispenser_front', 'top_vert': 'dispenser_front_vertical'},
+    #              Furnace
+                   61:    {'top': 'furnace_top', 'side': 'furnace_side',
+                           'front': 'furnace_front', 'front_on': 'furnace_front_on'},
+    #              Dropper
+                   158:   {'top': 'furnace_top', 'side': 'furnace_side',
+                           'front': 'dropper_front', 'top_vert': 'dropper_front_vertical'},
+    #              Blast furance
+                   11362: {'top': 'blast_furnace_top', 'side': 'blast_furnace_side',
+                           'front': 'blast_furnace_front', 'front_on': 'blast_furnace_front_on'},
+    #              Smoker
+                   11364: {'top': 'smoker_top', 'side': 'smoker_side',
+                           'front': 'smoker_front', 'front_on': 'smoker_front_on'}}
+
+    if data & 0b111 in [0, 1] and 'top_vert' in texture_map[blockid]:
+        # Block has a special top texture when it faces up/down
+        # This also affects which texture is used for the sides/front
+        top_name = 'top_vert' if data & 0b111 == 1 else 'top'
+        side_name = 'top'
+        front_name = 'top'
     else:
-        top = self.load_image_texture("assets/minecraft/textures/block/furnace_top.png")
-        side = self.load_image_texture("assets/minecraft/textures/block/furnace_side.png")
-    
-    if blockid == 61: # Furnace
-        if data & 0b1000 == 8:
-            front = self.load_image_texture("assets/minecraft/textures/block/furnace_front_on.png")
-        else:
-            front = self.load_image_texture("assets/minecraft/textures/block/furnace_front.png")
-    elif blockid == 11362: # Blast Furnace
-        if data & 0b1000 == 8:
-            front = self.load_image_texture("assets/minecraft/textures/block/blast_furnace_front_on.png")
-            front = front.crop((0, 0, 16, 16)) # Blast furnace lit front is two textures in one image, so crop
-        else:
-            front = self.load_image_texture("assets/minecraft/textures/block/blast_furnace_front.png")
-    elif blockid == 23: # Dispenser
-        front = self.load_image_texture("assets/minecraft/textures/block/dispenser_front.png")
-        if data & 0b111 == 0: # dispenser pointing down
-            return self.build_block(top, top)
-        elif data & 0b111  == 1: # dispenser pointing up
-            dispenser_top = self.load_image_texture("assets/minecraft/textures/block/dispenser_front_vertical.png")
-            return self.build_block(dispenser_top, top)
-    elif blockid == 158: # Dropper
-        front = self.load_image_texture("assets/minecraft/textures/block/dropper_front.png")
-        if data & 0b111 == 0: # dropper pointing down
-            return self.build_block(top, top)
-        elif data & 0b111 == 1: # dispenser pointing up
-            dropper_top = self.load_image_texture("assets/minecraft/textures/block/dropper_front_vertical.png")
-            return self.build_block(dropper_top, top)
-    
+        top_name = 'top'
+        side_name = 'side'
+        # Use block's lit/on front texture if it is defined & bit 4 is set
+        # Note: Some front_on texture images have multiple frames,
+        #       but load_image_texture() crops this appropriately
+        #       as long as the image width is 16px
+        front_name = 'front_on' if data & 0b1000 == 8 and 'front_on' in texture_map[blockid] else 'front'
+
+    top = self.load_image_texture("assets/minecraft/textures/block/%s.png" % texture_map[blockid][top_name]).copy()
     top = top.rotate(top_rotation_map[data & 0b111])
+    side = self.load_image_texture("assets/minecraft/textures/block/%s.png" % texture_map[blockid][side_name])
+    front = self.load_image_texture("assets/minecraft/textures/block/%s.png" % texture_map[blockid][front_name])
+    
     if data & 0b111 == 3: # pointing west
         return self.build_full_block(top, None, None, side, front)
     elif data & 0b111 == 4: # pointing north
@@ -2519,15 +2521,6 @@ def smithing_table(self, blockid, data):
     top = self.load_image_texture("assets/minecraft/textures/block/smithing_table_top.png")
     side3 = self.load_image_texture("assets/minecraft/textures/block/smithing_table_side.png")
     side4 = self.load_image_texture("assets/minecraft/textures/block/smithing_table_front.png")
-
-    img = self.build_full_block(top, None, None, side3, side4, None)
-    return img
-
-@material(blockid=11364, solid=True, nodata=True)
-def smoker(self, blockid, data):
-    top = self.load_image_texture("assets/minecraft/textures/block/smoker_top.png")
-    side3 = self.load_image_texture("assets/minecraft/textures/block/smoker_side.png")
-    side4 = self.load_image_texture("assets/minecraft/textures/block/smoker_front.png")
 
     img = self.build_full_block(top, None, None, side3, side4, None)
     return img
