@@ -1185,7 +1185,7 @@ class RegionSet(object):
             data = 1 if palette_entry['Properties']['axis'] == 'x' else 0
         elif key == 'minecraft:grindstone':
             p = palette_entry['Properties']
-            data = {'south': 0, 'west':1, 'north':2, 'east':3}[p['facing']]
+            data = {'south': 0, 'west': 1, 'north': 2, 'east': 3}[p['facing']]
             data |= {'floor': 0, 'wall': 4, 'ceiling': 8}[p['face']]
         
         return (block, data)
