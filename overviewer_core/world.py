@@ -1032,7 +1032,8 @@ class RegionSet(object):
                       'minecraft:jigsaw']):
             p = palette_entry['Properties']
             data |= {'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5}[p['facing']]
-            if key.endswith('piston') and p.get('extended', 'false') == 'true':
+            if ((key.endswith('piston') and p.get('extended', 'false') == 'true') or
+                    (key == 'minecraft:observer' and p.get('powered', 'false') == 'true')):
                 data |= 0x08
         elif key == 'minecraft:piston_head':
             p = palette_entry['Properties']
