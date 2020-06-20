@@ -2885,152 +2885,116 @@ def signpost(self, blockid, data):
 
 
 # wooden and iron door
-# uses pseudo-ancildata found in iterate.c
-@material(blockid=[64,71,193,194,195,196,197], data=list(range(32)), transparent=True)
+@material(blockid=[64, 71, 193, 194, 195, 196, 197], data=list(range(32)), transparent=True,
+          solid=True, nospawn=True)
 def door(self, blockid, data):
-    #Masked to not clobber block top/bottom & swung info
-    if self.rotation == 1:
-        if (data & 0b00011) == 0: data = data & 0b11100 | 1
-        elif (data & 0b00011) == 1: data = data & 0b11100 | 2
-        elif (data & 0b00011) == 2: data = data & 0b11100 | 3
-        elif (data & 0b00011) == 3: data = data & 0b11100 | 0
-    elif self.rotation == 2:
-        if (data & 0b00011) == 0: data = data & 0b11100 | 2
-        elif (data & 0b00011) == 1: data = data & 0b11100 | 3
-        elif (data & 0b00011) == 2: data = data & 0b11100 | 0
-        elif (data & 0b00011) == 3: data = data & 0b11100 | 1
-    elif self.rotation == 3:
-        if (data & 0b00011) == 0: data = data & 0b11100 | 3
-        elif (data & 0b00011) == 1: data = data & 0b11100 | 0
-        elif (data & 0b00011) == 2: data = data & 0b11100 | 1
-        elif (data & 0b00011) == 3: data = data & 0b11100 | 2
+    # Masked to not clobber block top/bottom, open & hinge data
+    data = data & 0b11100 | ((self.rotation + (data & 0b11)) % 4)
 
-    if data & 0x8 == 0x8: # top of the door
-        if blockid == 64: # classic wood door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/oak_door_top.png")
-        elif blockid == 71: # iron door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/iron_door_top.png")
-        elif blockid == 193: # spruce door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/spruce_door_top.png")
-        elif blockid == 194: # birch door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/birch_door_top.png")
-        elif blockid == 195: # jungle door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/jungle_door_top.png")
-        elif blockid == 196: # acacia door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/acacia_door_top.png")
-        elif blockid == 197: # dark_oak door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/dark_oak_door_top.png")
-    else: # bottom of the door
-        if blockid == 64:
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/oak_door_bottom.png")
-        elif blockid == 71: # iron door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/iron_door_bottom.png")
-        elif blockid == 193: # spruce door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/spruce_door_bottom.png")
-        elif blockid == 194: # birch door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/birch_door_bottom.png")
-        elif blockid == 195: # jungle door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/jungle_door_bottom.png")
-        elif blockid == 196: # acacia door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/acacia_door_bottom.png")
-        elif blockid == 197: # dark_oak door
-            raw_door = self.load_image_texture("assets/minecraft/textures/block/dark_oak_door_bottom.png")
-    
-    # if you want to render all doors as closed, then force
-    # force closed to be True
-    if data & 0x4 == 0x4:
-        closed = False
-    else:
-        closed = True
-    
-    if data & 0x10 == 0x10:
-        # hinge on the left (facing same door direction)
-        hinge_on_left = True
-    else:
-        # hinge on the right (default single door)
-        hinge_on_left = False
+    door_half = "top" if data & 0x08 else "bottom"
+    texture_map = {64:  "oak_door",
+                   71:  "iron_door",
+                   193: "spruce_door",
+                   194: "birch_door",
+                   195: "jungle_door",
+                   196: "acacia_door",
+                   197: "dark_oak_door"}
+    raw_door = self.load_image_texture("assets/minecraft/textures/block/%s_%s.png"
+                                       % (texture_map[blockid], door_half))
 
-    # mask out the high bits to figure out the orientation 
-    img = Image.new("RGBA", (24,24), self.bgcolor)
-    if (data & 0x03) == 0: # facing west when closed
-        if hinge_on_left:
-            if closed:
-                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
-                alpha_over(img, tex, (0,6), tex)
-            else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
-                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (12,6), tex)
-        else:
-            if closed:
-                tex = self.transform_image_side(raw_door)    
-                alpha_over(img, tex, (0,6), tex)
-            else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
-                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (0,0), tex)
-    
-    if (data & 0x03) == 1: # facing north when closed
-        if hinge_on_left:
-            if closed:
-                tex = self.transform_image_side(raw_door).transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (0,0), tex)
-            else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door)
-                alpha_over(img, tex, (0,6), tex)
+    # if you want to render all doors as closed, then force closed to be True
+    closed = not bool(data & 0x04)
 
-        else:
-            if closed:
-                tex = self.transform_image_side(raw_door).transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (0,0), tex)
-            else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door)
-                alpha_over(img, tex, (12,0), tex)
+    # True: hinge on the left (facing same door direction)
+    # False: hinge on the right (default single door)
+    hinge_on_left = bool(data & 0x10)
 
-                
-    if (data & 0x03) == 2: # facing east when closed
+    # mask out the high bits to figure out the orientation
+    img = Image.new("RGBA", (24, 24), self.bgcolor)
+    if (data & 0x03) == 0:  # facing east when closed
         if hinge_on_left:
             if closed:
                 tex = self.transform_image_side(raw_door)
-                alpha_over(img, tex, (12,0), tex)
+                alpha_over(img, tex, (0, 6), tex)
             else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door)
+                # flip first to set the doorknob on the correct side
+                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
                 tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (0,0), tex)
+                alpha_over(img, tex, (0, 0), tex)
         else:
             if closed:
+                # flip first to set the doorknob on the correct side
                 tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
-                alpha_over(img, tex, (12,0), tex)
+                alpha_over(img, tex, (0, 6), tex)
             else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door).transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (12,6), tex)
+                # flip first to set the doorknob on the correct side
+                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
+                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
+                alpha_over(img, tex, (12, 6), tex)
 
-    if (data & 0x03) == 3: # facing south when closed
+    if (data & 0x03) == 1:  # facing south when closed
         if hinge_on_left:
             if closed:
-                tex = self.transform_image_side(raw_door).transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (12,6), tex)
+                tex = self.transform_image_side(raw_door)
+                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
+                alpha_over(img, tex, (0, 0), tex)
             else:
-                # flip first to set the doornob on the correct side
-                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
-                alpha_over(img, tex, (12,0), tex)
+                tex = self.transform_image_side(raw_door)
+                alpha_over(img, tex, (12, 0), tex)
+
         else:
             if closed:
+                # flip first to set the doorknob on the correct side
                 tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
                 tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
-                alpha_over(img, tex, (12,6), tex)
+                alpha_over(img, tex, (0, 0), tex)
             else:
-                # flip first to set the doornob on the correct side
+                tex = self.transform_image_side(raw_door)
+                alpha_over(img, tex, (0, 6), tex)
+
+    if (data & 0x03) == 2:  # facing west when closed
+        if hinge_on_left:
+            if closed:
+                # flip first to set the doorknob on the correct side
                 tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
-                alpha_over(img, tex, (0,6), tex)
+                alpha_over(img, tex, (12, 0), tex)
+            else:
+                tex = self.transform_image_side(raw_door)
+                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
+                alpha_over(img, tex, (12, 6), tex)
+        else:
+            if closed:
+                tex = self.transform_image_side(raw_door)
+                alpha_over(img, tex, (12, 0), tex)
+            else:
+                tex = self.transform_image_side(raw_door)
+                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
+                alpha_over(img, tex, (0, 0), tex)
+
+    if (data & 0x03) == 3:  # facing north when closed
+        if hinge_on_left:
+            if closed:
+                # flip first to set the doorknob on the correct side
+                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
+                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
+                alpha_over(img, tex, (12, 6), tex)
+            else:
+                # flip first to set the doorknob on the correct side
+                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
+                alpha_over(img, tex, (0, 6), tex)
+        else:
+            if closed:
+                tex = self.transform_image_side(raw_door)
+                tex = tex.transpose(Image.FLIP_LEFT_RIGHT)
+                alpha_over(img, tex, (12, 6), tex)
+            else:
+                return None
+                # flip first to set the doorknob on the correct side
+                tex = self.transform_image_side(raw_door.transpose(Image.FLIP_LEFT_RIGHT))
+                alpha_over(img, tex, (12, 0), tex)
 
     return img
+
 
 # ladder
 @material(blockid=65, data=[2, 3, 4, 5], transparent=True)

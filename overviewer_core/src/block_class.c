@@ -122,13 +122,6 @@ const mc_block_t block_class_fence_gate[] = {
 const size_t block_class_fence_gate_len = COUNT_OF(block_class_fence_gate);
 
 const mc_block_t block_class_ancil[] = {
-    block_wooden_door,
-    block_iron_door,
-    block_spruce_door,
-    block_birch_door,
-    block_jungle_door,
-    block_acacia_door,
-    block_dark_oak_door,
     block_oak_stairs,
     block_brick_stairs,
     block_stone_brick_stairs,
