@@ -158,17 +158,10 @@ const mc_block_t block_class_ancil[] = {
     block_glass,
     block_redstone_wire,
     block_ice,
-    block_fence,
     block_portal,
     block_waterlily,
-    block_nether_brick_fence,
     block_double_plant,
-    block_stained_glass,
-    block_spruce_fence,
-    block_birch_fence,
-    block_jungle_fence,
-    block_dark_oak_fence,
-    block_acacia_fence};
+    block_stained_glass};
 const size_t block_class_ancil_len = COUNT_OF(block_class_ancil);
 
 const mc_block_t block_class_alt_height[] = {

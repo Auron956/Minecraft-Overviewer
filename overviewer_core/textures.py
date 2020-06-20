@@ -3455,49 +3455,55 @@ def sugar_cane(self, blockid, data):
 def jukebox(self, blockid, data):
     return self.build_block(self.load_image_texture("assets/minecraft/textures/block/jukebox_top.png"), self.load_image_texture("assets/minecraft/textures/block/note_block.png"))
 
-# nether and normal fences
-# uses pseudo-ancildata found in iterate.c
-@material(blockid=[85, 188, 189, 190, 191, 192, 113], data=list(range(16)), transparent=True, nospawn=True)
+
+# All fences
+@material(blockid=[85, 188, 189, 190, 191, 192, 113], data=list(range(16)),
+          transparent=True, nospawn=True)
 def fence(self, blockid, data):
-    # no need for rotations, it uses pseudo data.
+    # Re-arrange the bits in data based on self.rotation
+    # rotation  bit: 4321
+    #        0       ESWN
+    #        1       NESW
+    #        2       WNES
+    #        3       SWNE
+    if self.rotation in [1, 2, 3]:
+        bit_map = {1: [1, 4, 3, 2],
+                   2: [2, 1, 4, 3],
+                   3: [3, 2, 1, 4]}
+        new_data = 0
+
+        # Add the ith bit to new_data then shift left one at a time,
+        # re-ordering data's bits in the order specified in bit_map
+        for i in bit_map[self.rotation]:
+            new_data = new_data << 1
+            new_data |= (data >> (i - 1)) & 1
+        data = new_data
+
+    texture_map = {85:  "oak_planks",
+                   113: "nether_bricks",
+                   188: "spruce_planks",
+                   189: "birch_planks",
+                   190: "jungle_planks",
+                   191: "dark_oak_planks",
+                   192: "acacia_planks"}
+
     # create needed images for Big stick fence
-    if blockid == 85: # normal fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/oak_planks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/oak_planks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/oak_planks.png").copy()
-    elif blockid == 188: # spruce fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/spruce_planks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/spruce_planks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/spruce_planks.png").copy()
-    elif blockid == 189: # birch fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/birch_planks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/birch_planks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/birch_planks.png").copy()
-    elif blockid == 190: # jungle fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/jungle_planks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/jungle_planks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/jungle_planks.png").copy()
-    elif blockid == 191: # big/dark oak fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/dark_oak_planks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/dark_oak_planks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/dark_oak_planks.png").copy()
-    elif blockid == 192: # acacia oak fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/acacia_planks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/acacia_planks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/acacia_planks.png").copy()
-    else: # netherbrick fence
-        fence_top = self.load_image_texture("assets/minecraft/textures/block/nether_bricks.png").copy()
-        fence_side = self.load_image_texture("assets/minecraft/textures/block/nether_bricks.png").copy()
-        fence_small_side = self.load_image_texture("assets/minecraft/textures/block/nether_bricks.png").copy()
+    fence_top = self.load_image_texture("assets/minecraft/textures/block/%s.png" %
+                                        texture_map[blockid]).copy()
+    fence_side = fence_top.copy()
+    fence_small_side = fence_top.copy()
+
+    def drawrect(img, crop, outline=(0, 0, 0, 0), fill=(0, 0, 0, 0)):
+        ImageDraw.Draw(img).rectangle(crop, outline=outline, fill=fill)
 
     # generate the textures of the fence
-    ImageDraw.Draw(fence_top).rectangle((0,0,5,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_top).rectangle((10,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_top).rectangle((0,0,15,5),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_top).rectangle((0,10,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
+    drawrect(fence_top, (0, 0, 5, 15))
+    drawrect(fence_top, (10, 0, 15, 15))
+    drawrect(fence_top, (0, 0, 15, 5))
+    drawrect(fence_top, (0, 10, 15, 15))
 
-    ImageDraw.Draw(fence_side).rectangle((0,0,5,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_side).rectangle((10,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
+    drawrect(fence_side, (0, 0, 5, 15))
+    drawrect(fence_side, (10, 0, 15, 15))
 
     # Create the sides and the top of the big stick
     fence_side = self.transform_image_side(fence_side)
@@ -3515,23 +3521,23 @@ def fence(self, blockid, data):
     fence_other_side.putalpha(othersidealpha)
 
     # Compose the fence big stick
-    fence_big = Image.new("RGBA", (24,24), self.bgcolor)
-    alpha_over(fence_big,fence_side, (5,4),fence_side)
-    alpha_over(fence_big,fence_other_side, (7,4),fence_other_side)
-    alpha_over(fence_big,fence_top, (0,0),fence_top)
-    
+    fence_big = Image.new("RGBA", (24, 24), self.bgcolor)
+    alpha_over(fence_big, fence_side, (5, 4), fence_side)
+    alpha_over(fence_big, fence_other_side, (7, 4), fence_other_side)
+    alpha_over(fence_big, fence_top, (0, 0), fence_top)
+
     # Now render the small sticks.
     # Create needed images
-    ImageDraw.Draw(fence_small_side).rectangle((0,0,15,0),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_small_side).rectangle((0,4,15,6),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_small_side).rectangle((0,10,15,16),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_small_side).rectangle((0,0,4,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(fence_small_side).rectangle((11,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
+    drawrect(fence_small_side, (0, 0, 15, 0))
+    drawrect(fence_small_side, (0, 4, 15, 6))
+    drawrect(fence_small_side, (0, 10, 15, 16))
+    drawrect(fence_small_side, (0, 0, 4, 15))
+    drawrect(fence_small_side, (11, 0, 15, 15))
 
     # Create the sides and the top of the small sticks
     fence_small_side = self.transform_image_side(fence_small_side)
     fence_small_other_side = fence_small_side.transpose(Image.FLIP_LEFT_RIGHT)
-    
+
     # Darken the sides slightly. These methods also affect the alpha layer,
     # so save them first (we don't want to "darken" the alpha layer making
     # the block transparent)
@@ -3543,34 +3549,35 @@ def fence(self, blockid, data):
     fence_small_side.putalpha(sidealpha)
 
     # Create img to compose the fence
-    img = Image.new("RGBA", (24,24), self.bgcolor)
+    img = Image.new("RGBA", (24, 24), self.bgcolor)
 
     # Position of fence small sticks in img.
-    # These postitions are strange because the small sticks of the 
+    # These postitions are strange because the small sticks of the
     # fence are at the very left and at the very right of the 16x16 images
-    pos_top_left = (2,3)
-    pos_top_right = (10,3)
-    pos_bottom_right = (10,7)
-    pos_bottom_left = (2,7)
-    
+    pos_top_left = (2, 3)
+    pos_top_right = (10, 3)
+    pos_bottom_right = (10, 7)
+    pos_bottom_left = (2, 7)
+
     # +x axis points top right direction
     # +y axis points bottom right direction
-    # First compose small sticks in the back of the image, 
+    # First compose small sticks in the back of the image,
     # then big stick and thecn small sticks in the front.
 
-    if (data & 0b0001) == 1:
-        alpha_over(img,fence_small_side, pos_top_left,fence_small_side)                # top left
-    if (data & 0b1000) == 8:
-        alpha_over(img,fence_small_other_side, pos_top_right,fence_small_other_side)    # top right
-        
-    alpha_over(img,fence_big,(0,0),fence_big)
-        
-    if (data & 0b0010) == 2:
-        alpha_over(img,fence_small_other_side, pos_bottom_left,fence_small_other_side)      # bottom left    
-    if (data & 0b0100) == 4:
-        alpha_over(img,fence_small_side, pos_bottom_right,fence_small_side)                  # bottom right
-    
+    if (data & 0b0001) == 1:  # top left
+        alpha_over(img, fence_small_side, pos_top_left, fence_small_side)
+    if (data & 0b1000) == 8:  # top right
+        alpha_over(img, fence_small_other_side, pos_top_right, fence_small_other_side)
+
+    alpha_over(img, fence_big, (0, 0), fence_big)
+
+    if (data & 0b0010) == 2:  # bottom left
+        alpha_over(img, fence_small_other_side, pos_bottom_left, fence_small_other_side)
+    if (data & 0b0100) == 4:  # bottom right
+        alpha_over(img, fence_small_side, pos_bottom_right, fence_small_side)
+
     return img
+
 
 # pumpkin
 @material(blockid=[86, 91,11300], data=list(range(4)), solid=True)
@@ -3611,6 +3618,7 @@ def pumpkin(self, blockid, data): # pumpkins, jack-o-lantern
         img = self.build_full_block(top, None, None, side, side)
 
     return img
+
 
 # netherrack
 block(blockid=87, top_image="assets/minecraft/textures/block/netherrack.png")
