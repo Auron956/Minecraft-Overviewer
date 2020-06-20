@@ -1206,6 +1206,8 @@ class RegionSet(object):
                 data |= 2 << shift_bits
             if p['north']  == 'true':
                 data |= 1 << shift_bits
+        elif key == 'minecraft:nether_portal':
+            data = 1 if palette_entry['Properties']['axis'] == 'x' else 0
 
         return (block, data)
 
