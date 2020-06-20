@@ -2399,83 +2399,84 @@ def chests(self, blockid, data):
 
     return img
 
+
 # redstone wire
-# uses pseudo-ancildata found in iterate.c
-@material(blockid=55, data=list(range(128)), transparent=True)
+@material(blockid=55, data=list(range(162)), transparent=True)
 def wire(self, blockid, data):
+    # Decode data for each direction
+    def ternary(n, m):
+        n = int(n)
+        if n == 0:
+            return [0] * int(m)
+        out = []
+        while n:
+            n, r = divmod(n, 3)
+            out.append(r)
+        if len(out) < m:
+            for i in list(range(int(m) - len(out))):
+                out.append(0)
+        out.reverse()
+        return out
 
-    if data & 0b1000000 == 64: # powered redstone wire
-        redstone_wire_t = self.load_image_texture("assets/minecraft/textures/block/redstone_dust_line0.png").rotate(90)
-        redstone_wire_t = self.tint_texture(redstone_wire_t,(255,0,0))
+    # data_direction: [E, N, W, S] with 3 states
+    #   0 = no wire, 1 = wire points outwards, 2 = wire points upwards
+    data_direction = ternary(data >> 1, 4)[0:4]
 
-        redstone_cross_t = self.load_image_texture("assets/minecraft/textures/block/redstone_dust_dot.png")
-        redstone_cross_t = self.tint_texture(redstone_cross_t,(255,0,0))
+    # Roll based on render direction
+    data_direction = numpy.roll(data_direction, [0, 3, 2, 1][self.rotation])
 
-        
-    else: # unpowered redstone wire
-        redstone_wire_t = self.load_image_texture("assets/minecraft/textures/block/redstone_dust_line0.png").rotate(90)
-        redstone_wire_t = self.tint_texture(redstone_wire_t,(48,0,0))
-        
-        redstone_cross_t = self.load_image_texture("assets/minecraft/textures/block/redstone_dust_dot.png")
-        redstone_cross_t = self.tint_texture(redstone_cross_t,(48,0,0))
+    # Begin texture generation
+    if data & 0b1:  # powered redstone wire
+        tint_color = (255, 0, 0)
+    else:           # unpowered redstone wire
+        tint_color = (48, 0, 0)
 
-    # generate an image per redstone direction
-    branch_top_left = redstone_cross_t.copy()
-    ImageDraw.Draw(branch_top_left).rectangle((0,0,4,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_top_left).rectangle((11,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_top_left).rectangle((0,11,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    
-    branch_top_right = redstone_cross_t.copy()
-    ImageDraw.Draw(branch_top_right).rectangle((0,0,15,4),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_top_right).rectangle((0,0,4,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_top_right).rectangle((0,11,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    
-    branch_bottom_right = redstone_cross_t.copy()
-    ImageDraw.Draw(branch_bottom_right).rectangle((0,0,15,4),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_bottom_right).rectangle((0,0,4,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_bottom_right).rectangle((11,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
+    tex_path = "assets/minecraft/textures/block/"
+    redstone_wire_t = self.load_image_texture(tex_path + "redstone_dust_line0.png")
+    redstone_wire_t = self.tint_texture(redstone_wire_t, tint_color)
 
-    branch_bottom_left = redstone_cross_t.copy()
-    ImageDraw.Draw(branch_bottom_left).rectangle((0,0,15,4),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_bottom_left).rectangle((11,0,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-    ImageDraw.Draw(branch_bottom_left).rectangle((0,11,15,15),outline=(0,0,0,0),fill=(0,0,0,0))
-            
-    # generate the bottom texture
-    if data & 0b111111 == 0:
-        bottom = redstone_cross_t.copy()
+    redstone_cross_t = self.load_image_texture(tex_path + "redstone_dust_dot.png")
+    redstone_cross_t = self.tint_texture(redstone_cross_t, tint_color)
 
-    # see iterate.c for where these masks come from
-    has_x = (data & 0b1010) > 0
-    has_z = (data & 0b0101) > 0
+    # Draw two branches then rotate as needed
+    # For South/East directions, facing South by default
+    branch_se = redstone_wire_t.copy()
+    ImageDraw.Draw(branch_se).rectangle((0, 0, 15, 8), outline=(0, 0, 0, 0), fill=(0, 0, 0, 0))
+
+    # For North/West directions, facing North by default
+    branch_nw = branch_se.copy().rotate(180)
+
+    has_x = data_direction[0] > 0 or data_direction[2] > 0
+    has_z = data_direction[1] > 0 or data_direction[3] > 0
+
     if has_x and has_z:
+        # Redstone points in at least one x & z direction simultaneously
         bottom = redstone_cross_t.copy()
-        if has_x:
-            alpha_over(bottom, redstone_wire_t.copy())
-        if has_z:
-            alpha_over(bottom, redstone_wire_t.copy().rotate(90))
-
+        if data_direction[0] > 0:  # East
+            alpha_over(bottom, branch_se.rotate(90))
+        if data_direction[1] > 0:  # North
+            alpha_over(bottom, branch_nw)
+        if data_direction[2] > 0:  # West
+            alpha_over(bottom, branch_nw.rotate(90))
+        if data_direction[3] > 0:  # South
+            alpha_over(bottom, branch_se)
+    elif has_x:
+        # Redstone points in x direction only
+        bottom = redstone_wire_t.copy().rotate(90)
+    elif has_z:
+        # Redstone points in z direction only
+        bottom = redstone_wire_t.copy()
     else:
-        if has_x:
-            bottom = redstone_wire_t.copy()
-        elif has_z:
-            bottom = redstone_wire_t.copy().rotate(90)
-        elif data & 0b1111 == 0: 
-            bottom = redstone_cross_t.copy()
+        # Redstone points in no directions
+        bottom = redstone_cross_t.copy()
 
-    # check for going up redstone wire
-    if data & 0b100000 == 32:
-        side1 = redstone_wire_t.rotate(90)
-    else:
-        side1 = None
-        
-    if data & 0b010000 == 16:
-        side2 = redstone_wire_t.rotate(90)
-    else:
-        side2 = None
-        
-    img = self.build_full_block(None,side1,side2,None,None,bottom)
+    # West & South upwards pointing wire is culled in game when viewed
+    #   from behind, so do the same here
+    side1 = redstone_wire_t.copy() if data_direction[1] == 2 else None  # North
+    side2 = redstone_wire_t.copy() if data_direction[0] == 2 else None  # East
 
-    return img
+    return self.build_full_block(None, side1, side2, None, None, bottom)
+
 
 # diamond ore
 block(blockid=56, top_image="assets/minecraft/textures/block/diamond_ore.png")
