@@ -1182,7 +1182,9 @@ class RegionSet(object):
         elif key in ['minecraft:grass_block', 'minecraft:podzol', 'minecraft:mycelium']:
             if palette_entry['Properties'].get('snowy', 'false') == 'true':
                 data |= 16
-        elif key in ['minecraft:iron_bars', 'minecraft:glass_pane'] or key.endswith('_glass_pane'):
+        elif (key in ['minecraft:iron_bars', 'minecraft:glass_pane'] or
+              key.endswith('_glass_pane') or
+              key.endswith('_wall')):
             p = palette_entry['Properties']
             # Shift up 4 bits for stained glass panes as the lower 4 bits encode colour
             shift_bits = 4 if key.endswith('_glass_pane') else 0
