@@ -1106,6 +1106,11 @@ class RegionSet(object):
             elif facing == 'west':  data = 1
             if palette_entry['Properties']['half'] == 'top':
                 data |= 0x4
+            shape = palette_entry['Properties']['shape']
+            possible_shapes = ['inner_left', 'inner_right', 'outer_left', 'outer_right', 'straight']
+            if shape in possible_shapes:
+                # Indicate shape using bits 4-6
+                data |= possible_shapes.index(shape) << 3
         elif key.endswith('_door'):
             p = palette_entry['Properties']
             data = {'east': 0, 'south': 1, 'west': 2, 'north': 3}[p['facing']]
